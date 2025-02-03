@@ -1,0 +1,39 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api  #指定上下文路径 也就是说 要输入localhost:8080/api 才能访问到
+spring:
+  application:
+    name: zx-picture-backend
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/zx_picture
+    username: root
+    password: 123456
+
+mybatis-plus:
+  configuration:
+    # MyBatis 配置
+    map-underscore-to-camel-case: false
+    #仅在开发环境打印日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+   #逻辑删除
+  global-config:
+    db-config:
+      logic-delete-field: delete
+      logic-delete-value: 1 # 默认 1  代表删除
+      logic-not-delete-value: 0 #默认 0 代表存在
+#接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    title: 协同云图库接口文档
+    description: "协同云图库"
+    concat: zx
+    version: v1.0
+    group:
+      test1:
+        group-name: 分组名称
+        api-rule: package
+        api-rule-resources:
+          - com.katomegumi.zxpicturebackend.controller #指定controller
