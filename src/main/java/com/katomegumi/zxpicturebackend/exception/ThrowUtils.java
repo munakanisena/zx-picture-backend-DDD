@@ -6,19 +6,21 @@ package com.katomegumi.zxpicturebackend.exception;
 public class ThrowUtils {
     /**
      * 条件成立抛异常
+     *
      * @param condition
      * @param runtimeException
      */
-    public static void ThrowIf(boolean condition,RuntimeException runtimeException) {
-        if(condition) {
+    public static void throwIf(boolean condition, RuntimeException runtimeException) {
+        if (condition) {
             throw runtimeException;
         }
     }
-    public static void ThrowIf(boolean condition,ErrorCode errorCode) {
-        ThrowIf(condition,new BusinessException(errorCode));
+
+    public static void throwIf(boolean condition, ErrorCode errorCode) {
+        throwIf(condition, new BusinessException(errorCode));
     }
 
-    public static void ThrowIf(boolean condition,ErrorCode errorCode,String message) {
-        ThrowIf(condition,new BusinessException(errorCode,message));
+    public static void throwIf(boolean condition, ErrorCode errorCode, String message) {
+        throwIf(condition, new BusinessException(errorCode, message));
     }
 }
