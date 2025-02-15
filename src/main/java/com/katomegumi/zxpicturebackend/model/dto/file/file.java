@@ -1,4 +1,4 @@
-package com.katomegumi.zxpicturebackend.model.dto;
+package com.katomegumi.zxpicturebackend.model.dto.file;
 
 import lombok.Data;
 
