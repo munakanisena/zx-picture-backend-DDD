@@ -18,10 +18,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import java.nio.BufferUnderflowException;
-
-import static com.katomegumi.zxpicturebackend.constant.UserConstant.USER_LOGIN_STATE;
-
+/**
+ * 通过springboot-aop切面 加上注解 进行身份校验
+ */
 @Component
 @Slf4j
 @Aspect

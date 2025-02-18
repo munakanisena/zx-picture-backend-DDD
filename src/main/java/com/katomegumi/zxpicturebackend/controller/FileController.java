@@ -48,13 +48,13 @@ public class FileController {
             return ResultUtils.success(filePath);
 
         } catch (Exception e) {
-            log.error("上传失败{}",e);
+            log.error("上传失败",e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"上传失败了");
         } finally {
             if (file != null) {
                 boolean result = file.delete();
                 if (!result) {
-                    log.error("file delete error, filepath = {}", filePath);
+                    log.error("UploadPictureResult delete error, filepath = {}", filePath);
                 }
             }
         }
@@ -78,7 +78,7 @@ public class FileController {
             response.getOutputStream().write(byteArray);
             response.getOutputStream().flush();
         } catch (IOException e) {
-            log.error("文件下载失败{}",e);
+            log.error("文件下载失败",e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"下载失败");
         } finally {
             if (cosObjectInputStream != null) {

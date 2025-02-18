@@ -2,8 +2,11 @@ package com.katomegumi.zxpicturebackend.model.dto.file;
 
 import lombok.Data;
 
+/**
+ * 解析图片 封装对象
+ */
 @Data
-public class file {
+public class UploadPictureResult {
     /**
      * 图片地址
      */

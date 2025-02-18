@@ -9,6 +9,7 @@ import com.katomegumi.zxpicturebackend.exception.BusinessException;
 import com.katomegumi.zxpicturebackend.exception.ErrorCode;
 import com.katomegumi.zxpicturebackend.model.dto.user.UserQueryRequest;
 import com.katomegumi.zxpicturebackend.model.entity.User;
+import com.katomegumi.zxpicturebackend.model.enums.UserRoleEnum;
 import com.katomegumi.zxpicturebackend.model.vo.LoginUserVO;
 import com.katomegumi.zxpicturebackend.model.vo.UserVO;
 import com.katomegumi.zxpicturebackend.service.UserService;
@@ -194,6 +195,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user!=null&&user.getUserRole().equals(UserRoleEnum.ADMIN.getValue());
     }
 
 }
