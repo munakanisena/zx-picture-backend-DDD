@@ -29,7 +29,7 @@ create table if not exists tb_picture
     name         varchar(128)                       not null comment '图片名称',
     introduction varchar(512)                       null comment '简介',
     category     varchar(64)                        null comment '分类',
-    tags         varchar(512)                      null comment '标签（JSON 数组）',
+    tags         varchar(512)                       null comment '标签（JSON 数组）',
     picSize      bigint                             null comment '图片体积',
     picWidth     int                                null comment '图片宽度',
     picHeight    int                                null comment '图片高度',
@@ -46,3 +46,14 @@ create table if not exists tb_picture
     INDEX idx_tags (tags),                 -- 提升基于标签的查询性能
     INDEX idx_userId (userId)              -- 提升基于用户 ID 的查询性能
 ) comment '图片' collate = utf8mb4_unicode_ci;
+
+-- 涉及用户添加图片 需要对其进行审核 要添加picture字段
+
+alter table tb_picture
+    -- 添加新字段
+    add column reviewStatus  int           not null default 0 comment '0为待审核; 1为审核通过; 2为审核失败',
+    add column reviewMessage varchar(512)  null               comment '审核信息',
+    add column reviewId      bigint        null               comment '审核人id',
+    add column reviewTime    datetime      null               comment '审核时间';
+-- 添加索引
+create index idx_reviewStatus on tb_picture (reviewStatus);

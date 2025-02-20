@@ -3,6 +3,7 @@ package com.katomegumi.zxpicturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.katomegumi.zxpicturebackend.model.dto.picture.PictureQueryRequest;
+import com.katomegumi.zxpicturebackend.model.dto.picture.PictureReviewRequest;
 import com.katomegumi.zxpicturebackend.model.dto.picture.PictureUploadRequest;
 import com.katomegumi.zxpicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -21,12 +22,12 @@ public interface PictureService extends IService<Picture> {
     /**
      * 上传图片
      *
-     * @param multipartFile
+     * @param inputSource
      * @param pictureUploadRequest
      * @param loginUser
      * @return
      */
-    PictureVO uploadPicture(MultipartFile multipartFile,
+    PictureVO uploadPicture(Object inputSource,
                             PictureUploadRequest pictureUploadRequest,
                             User loginUser);
 
@@ -58,4 +59,18 @@ public interface PictureService extends IService<Picture> {
      * @param picture
      */
     void validPicture(Picture picture);
+
+    /**
+     * 审核请求
+     * @param pictureReviewRequest
+     * @param loginUser
+     */
+    void doPictureReview(PictureReviewRequest pictureReviewRequest,User loginUser);
+
+    /**
+     * 更新或者修改 都需要进行审核
+     * @param picture
+     * @param loginUser
+     */
+    void fillReviewParams(Picture picture, User loginUser);
 }
