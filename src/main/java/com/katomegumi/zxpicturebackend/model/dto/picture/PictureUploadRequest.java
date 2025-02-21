@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 草稿
+ * 上传图片
  */
 @Data
 public class PictureUploadRequest implements Serializable {
@@ -18,6 +18,11 @@ public class PictureUploadRequest implements Serializable {
      * 文件地址
      */
     private String fileUrl;
+
+    /**
+     * 图片名称
+     */
+    private String picName;
 
     private static final long serialVersionUID = 1L;
 }

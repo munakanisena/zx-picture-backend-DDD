@@ -17,6 +17,7 @@ import com.katomegumi.zxpicturebackend.manager.upload.UrlPictureUpload;
 import com.katomegumi.zxpicturebackend.model.dto.file.UploadPictureResult;
 import com.katomegumi.zxpicturebackend.model.dto.picture.PictureQueryRequest;
 import com.katomegumi.zxpicturebackend.model.dto.picture.PictureReviewRequest;
+import com.katomegumi.zxpicturebackend.model.dto.picture.PictureUploadByBatchRequest;
 import com.katomegumi.zxpicturebackend.model.dto.picture.PictureUploadRequest;
 import com.katomegumi.zxpicturebackend.model.entity.Picture;
 import com.katomegumi.zxpicturebackend.model.entity.User;
@@ -26,11 +27,17 @@ import com.katomegumi.zxpicturebackend.model.vo.UserVO;
 import com.katomegumi.zxpicturebackend.service.PictureService;
 import com.katomegumi.zxpicturebackend.mapper.PictureMapper;
 import com.katomegumi.zxpicturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +47,7 @@ import java.util.stream.Collectors;
 * @createDate 2025-02-15 19:51:44
 */
 @Service
+@Slf4j
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     implements PictureService{
 
@@ -74,6 +82,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         if (pictureId!=null){
             Picture oldpicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldpicture == null, ErrorCode.NOT_FOUND_ERROR);
+            //是本人还是 管理员操作
             if (!oldpicture.getUserId().equals(loginUser.getId())&&!userService.isAdmin(loginUser)){
                throw  new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
@@ -94,7 +103,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
-        picture.setName(uploadPictureResult.getPicName());
+        //
+        String picName = uploadPictureResult.getPicName();
+        if (pictureUploadRequest!=null&&StrUtil.isNotBlank(pictureUploadRequest.getPicName())){
+            picName=pictureUploadRequest.getPicName();
+        }
+        picture.setName(picName);
         picture.setPicSize(uploadPictureResult.getPicSize());
         picture.setPicWidth(uploadPictureResult.getPicWidth());
         picture.setPicHeight(uploadPictureResult.getPicHeight());
@@ -264,6 +278,67 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
            //用户 设定为待审核
             picture.setReviewStatus(PictureReviewStatusEnum.REVIEW.getValue());
         }
+    }
+
+    @Override
+    public Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser) {
+        //校验参数
+        String searchText = pictureUploadByBatchRequest.getSearchText();
+        Integer count = pictureUploadByBatchRequest.getCount();
+        ThrowUtils.throwIf(count>30,ErrorCode.PARAMS_ERROR,"最多抓取30条");
+        String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
+        if (StrUtil.isBlank(namePrefix)){
+            namePrefix=searchText;
+        }
+        // 要抓取的地址
+        String fetchUrl = String.format("https://cn.bing.com/images/async?q=%s&mmasync=1", searchText);
+        //通过接口 获取图片
+        Document document;
+        //对图片URL进行校验 修改
+        try {
+            document=Jsoup.connect(fetchUrl).get();
+        } catch (IOException e) {
+            log.error("获取html失败",e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR);
+        }
+        Element div = document.getElementsByClass("dgControl").first();
+        if (ObjUtil.isNull(div)) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取元素失败");
+        }
+        Elements elementList = div.select("img.mimg");
+        int uploadCount = 0;
+        //解析图片
+        for (Element igmElement : elementList) {
+            String fileUrl = igmElement.attr("src");
+            if (StrUtil.isBlank(fileUrl)) {
+                log.info("当前链接为空，已跳过: {}", fileUrl);
+                continue;
+                        }
+            //修改路径 把不要的去掉
+            int index = fileUrl.indexOf("?");
+            if (index>-1){
+                fileUrl = fileUrl.substring(0, index);
+            }
+            //上传对象存储
+            PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
+            if (StrUtil.isNotBlank(namePrefix)){
+                //按序号递增
+                pictureUploadRequest.setPicName(namePrefix+(uploadCount+1));
+            }
+            try {
+                PictureVO pictureVO = this.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+                log.info("图片上传成功:{}",pictureVO.getId());
+                uploadCount++;
+            } catch (Exception e) {
+                log.info("图片上传失败");
+              continue;
+            }
+            if (uploadCount>=count){
+                break;
+            }
+        }
+        //返回批量生成多少tup
+        return uploadCount;
     }
 
 }
