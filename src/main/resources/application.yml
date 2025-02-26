@@ -10,10 +10,18 @@ spring:
     url: jdbc:mysql://localhost:3306/zx_picture
     username: root
     password: 123456
-
   servlet:
     multipart:
       max-file-size: 10MB #设置最大上传文件大小
+  profiles:
+    active: local
+    #redis配置
+  redis:
+      host: 192.168.88.130
+      port: 6379
+      database: 1
+      timeout: 5000 #设置连接时间 5秒后失败
+      password: 123456
 
 mybatis-plus:
   configuration:
