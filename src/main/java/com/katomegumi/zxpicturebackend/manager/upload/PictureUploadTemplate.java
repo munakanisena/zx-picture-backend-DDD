@@ -1,32 +1,24 @@
 package com.katomegumi.zxpicturebackend.manager.upload;
 
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpStatus;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
 import com.katomegumi.zxpicturebackend.config.CosClientConfig;
 import com.katomegumi.zxpicturebackend.exception.BusinessException;
 import com.katomegumi.zxpicturebackend.exception.ErrorCode;
-import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
 import com.katomegumi.zxpicturebackend.manager.CosManager;
 import com.katomegumi.zxpicturebackend.model.dto.file.UploadPictureResult;
 import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.model.ciModel.persistence.CIObject;
 import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
+import com.qcloud.cos.model.ciModel.persistence.ProcessResults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -69,21 +61,18 @@ public abstract class PictureUploadTemplate {
             PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath,file);
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
 
-            String picFormat = imageInfo.getFormat();
-            int picWidth = imageInfo.getWidth();
-            int picHeight = imageInfo.getHeight();
-            //5.封装返回类
-            double picScale= NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
-            UploadPictureResult uploadPictureResult = new UploadPictureResult();
-            uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
-            uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
-            uploadPictureResult.setPicSize(FileUtil.size(file));
-            uploadPictureResult.setPicWidth(picWidth);
-            uploadPictureResult.setPicHeight(picHeight);
-            uploadPictureResult.setPicScale(picScale);
-            uploadPictureResult.setPicFormat(picFormat);
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
+            //判断是否存在,存在就返回压缩信息
+            if (CollUtil.isNotEmpty(objectList)){
+                CIObject ciObject = objectList.get(0);
+                CIObject thumbnailCiobject = objectList.get(1);
 
-            return uploadPictureResult;
+                return buildResult(ciObject,originFilename,thumbnailCiobject);
+            }
+
+            //封装原图信息
+            return buildResult(imageInfo, uploadPath, originFilename, file);
 
         } catch (Exception e) {
             log.error("图片上传到对象存储失败",e);
@@ -93,6 +82,57 @@ public abstract class PictureUploadTemplate {
             deleteTempFile(file);
         }
 
+    }
+
+    /**
+     * 封装压缩后的图片信息
+     *
+     * @param ciObject
+     * @param originFilename
+     * @param thumbnailCiobject
+     * @return
+     */
+    private UploadPictureResult buildResult(CIObject ciObject, String originFilename, CIObject thumbnailCiobject) {
+        String picFormat = ciObject.getFormat();
+        int picWidth = ciObject.getWidth();
+        int picHeight = ciObject.getHeight();
+        //5.封装返回类
+        double picScale= NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
+        UploadPictureResult uploadPictureResult = new UploadPictureResult();
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + ciObject.getKey());
+        uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
+        uploadPictureResult.setPicSize(ciObject.getSize().longValue());
+        uploadPictureResult.setPicWidth(picWidth);
+        uploadPictureResult.setPicHeight(picHeight);
+        uploadPictureResult.setPicScale(picScale);
+        uploadPictureResult.setPicFormat(picFormat);
+        uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost()+"/"+thumbnailCiobject.getKey());
+        return uploadPictureResult;
+    }
+
+    /**
+     * 封装图片信息
+     * @param imageInfo
+     * @param uploadPath
+     * @param originFilename
+     * @param file
+     * @return
+     */
+    private UploadPictureResult buildResult(ImageInfo imageInfo, String uploadPath, String originFilename, File file) {
+        String picFormat = imageInfo.getFormat();
+        int picWidth = imageInfo.getWidth();
+        int picHeight = imageInfo.getHeight();
+        //5.封装返回类
+        double picScale= NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
+        UploadPictureResult uploadPictureResult = new UploadPictureResult();
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
+        uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
+        uploadPictureResult.setPicSize(FileUtil.size(file));
+        uploadPictureResult.setPicWidth(picWidth);
+        uploadPictureResult.setPicHeight(picHeight);
+        uploadPictureResult.setPicScale(picScale);
+        uploadPictureResult.setPicFormat(picFormat);
+        return uploadPictureResult;
     }
 
     protected abstract void processFile(Object inputSource, File file) throws Exception;

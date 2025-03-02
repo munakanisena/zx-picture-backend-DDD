@@ -57,3 +57,7 @@ alter table tb_picture
     add column reviewTime    datetime      null               comment '审核时间';
 -- 添加索引
 create index idx_reviewStatus on tb_picture (reviewStatus);
+
+-- 添加缩放图URL
+alter table tb_picture
+    add column thumbnailUrl varchar(512)   NULL comment '缩略图 url';

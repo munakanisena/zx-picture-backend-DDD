@@ -91,6 +91,11 @@ public class PictureVO implements Serializable {
      */
     private UserVO user;
 
+    /**
+     * 缩略图URL
+     */
+    private String thumbnailUrl;
+
     private static final long serialVersionUID = 1L;
 
     /**
