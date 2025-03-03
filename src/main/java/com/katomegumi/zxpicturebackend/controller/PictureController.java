@@ -17,12 +17,10 @@ import com.katomegumi.zxpicturebackend.model.dto.picture.*;
 import com.katomegumi.zxpicturebackend.model.entity.Picture;
 import com.katomegumi.zxpicturebackend.model.entity.User;
 import com.katomegumi.zxpicturebackend.model.enums.PictureReviewStatusEnum;
-import com.katomegumi.zxpicturebackend.model.enums.UserRoleEnum;
 import com.katomegumi.zxpicturebackend.model.vo.PictureTagCategory;
 import com.katomegumi.zxpicturebackend.model.vo.PictureVO;
 import com.katomegumi.zxpicturebackend.service.PictureService;
 import com.katomegumi.zxpicturebackend.service.UserService;
-import org.bouncycastle.crypto.digests.MD5Digest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -120,6 +118,8 @@ public class PictureController {
         // 操作数据库
         boolean result = pictureService.removeById(id);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        //清理对象存储
+        pictureService.clearPictureFile(oldPicture);
         return ResultUtils.success(true);
     }
 

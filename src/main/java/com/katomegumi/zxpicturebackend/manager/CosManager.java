@@ -3,6 +3,7 @@ package com.katomegumi.zxpicturebackend.manager;
 import cn.hutool.core.io.FileUtil;
 import com.katomegumi.zxpicturebackend.config.CosClientConfig;
 import com.qcloud.cos.COSClient;
+import com.qcloud.cos.exception.CosClientException;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.GetObjectRequest;
 import com.qcloud.cos.model.PutObjectRequest;
@@ -87,5 +88,14 @@ public class CosManager {
         //规则设置在请求中
         putObjectRequest.setPicOperations(picOperations);
         return cosClient.putObject(putObjectRequest);
+    }
+
+    /**
+     * 删除对象存储的图片
+     * @param key
+     * @throws CosClientException
+     */
+    public void deleteObject(String key) throws CosClientException {
+        cosClient.deleteObject(cosClientConfig.getBucket(),key);
     }
 }
