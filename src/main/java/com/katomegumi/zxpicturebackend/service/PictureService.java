@@ -2,10 +2,7 @@ package com.katomegumi.zxpicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.katomegumi.zxpicturebackend.model.dto.picture.PictureQueryRequest;
-import com.katomegumi.zxpicturebackend.model.dto.picture.PictureReviewRequest;
-import com.katomegumi.zxpicturebackend.model.dto.picture.PictureUploadByBatchRequest;
-import com.katomegumi.zxpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.katomegumi.zxpicturebackend.model.dto.picture.*;
 import com.katomegumi.zxpicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.katomegumi.zxpicturebackend.model.entity.User;
@@ -56,6 +53,11 @@ public interface PictureService extends IService<Picture> {
      */
     Page<PictureVO> getPictureVOPage(Page<Picture> picturePage, HttpServletRequest request);
 
+    void deletePicture(long pictureId, User loginUser);
+
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+
+
     /**
      * 图片更新 修改时进行校验
      * @param picture
@@ -86,4 +88,6 @@ public interface PictureService extends IService<Picture> {
 
     @Async
     void clearPictureFile(Picture picture);
+
+    void checkPictureAuth(User loginUser, Picture picture);
 }
