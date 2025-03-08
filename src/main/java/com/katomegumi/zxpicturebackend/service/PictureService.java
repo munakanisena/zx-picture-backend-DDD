@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author lirui
@@ -90,4 +91,20 @@ public interface PictureService extends IService<Picture> {
     void clearPictureFile(Picture picture);
 
     void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 根据主色调查找相似图片
+     * @param spaceId
+     * @param picColor
+     * @param loginUser
+     * @return
+     */
+    List<PictureVO> searchPictureByPicColor(Long spaceId, String picColor, User loginUser);
+
+    /**
+     * 批处理图片
+     * @param pictureEditByBatchRequest
+     * @param loginUser
+     */
+    void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
 }

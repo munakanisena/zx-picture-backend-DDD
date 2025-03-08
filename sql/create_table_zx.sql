@@ -89,3 +89,7 @@ ALTER TABLE tb_picture
 
 -- 创建索引
 CREATE INDEX idx_spaceId ON tb_picture (spaceId);
+
+-- 优化图片搜索 增加主色调
+ALTER TABLE tb_picture
+    ADD COLUMN picColor varchar(16) null comment '图片主色调';
