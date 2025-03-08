@@ -8,6 +8,9 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.katomegumi.zxpicturebackend.api.aliyunai.AliYunAiApi;
+import com.katomegumi.zxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.katomegumi.zxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.katomegumi.zxpicturebackend.exception.BusinessException;
 import com.katomegumi.zxpicturebackend.exception.ErrorCode;
 import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
@@ -79,6 +82,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Resource
     private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private AliYunAiApi aliYunAiApi;
     /**
      * 上传图片
      *
@@ -612,6 +618,26 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             throw new BusinessException(ErrorCode.OPERATION_ERROR,"名称解析错误");
         }
     }
+
+    @Override
+    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser) {
+        // 获取图片信息
+        Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
+        //新的抛出异常方式
+        Picture picture = Optional.ofNullable(this.getById(pictureId)) //如果空 就会执行后面的抛出异常操作
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR));
+        // 权限校验
+        checkPictureAuth(loginUser, picture);
+        // 构造请求参数
+        CreateOutPaintingTaskRequest taskRequest = new CreateOutPaintingTaskRequest();
+        CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
+        input.setImageUrl(picture.getUrl());
+        taskRequest.setInput(input);
+        BeanUtil.copyProperties(createPictureOutPaintingTaskRequest, taskRequest);
+
+        return aliYunAiApi.createOutPaintingTask(taskRequest);
+    }
+
 }
 
 
