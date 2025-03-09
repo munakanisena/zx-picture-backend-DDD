@@ -186,6 +186,12 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         return spaceVOPage.setRecords(spaceVOList);
     }
 
+    @Override
+    public void checkSpaceAuth(Space space, User loginUser) {
+        if (!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+    }
 }
 
 
