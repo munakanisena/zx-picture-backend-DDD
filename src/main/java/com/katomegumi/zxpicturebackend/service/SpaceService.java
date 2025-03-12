@@ -23,7 +23,7 @@ public interface SpaceService extends IService<Space> {
     /**
      * 效验 space对象
      * @param space
-     * @param add 判断此次是更新 还是 新增
+     * @param add 判断此次是更新 还是 新增(true)
      */
     void validSpace(Space space, boolean add);
 

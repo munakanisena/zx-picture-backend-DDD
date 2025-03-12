@@ -93,3 +93,24 @@ CREATE INDEX idx_spaceId ON tb_picture (spaceId);
 -- 优化图片搜索 增加主色调
 ALTER TABLE tb_picture
     ADD COLUMN picColor varchar(16) null comment '图片主色调';
+
+-- 划分空间类型 (私有空间 和团队空间)
+ALTER TABLE tb_space
+    ADD COLUMN spaceType int default 0 not null comment '空间类型: 0为私有空间，1为团队空间';
+-- 添加索引
+CREATE INDEX idx_spaceType on tb_space(spaceType);
+
+-- 团队空间用户表
+create table if not exists tb_space_user(
+    id              bigint          auto_increment          comment 'id' primary key ,
+    spaceId         bigint          not null                comment '空间Id',
+    userId          bigint          not null                comment '用户id',
+    spaceRole       varchar(128)    default 'viewer' null   comment '空间角色：viewer/editor/admin',
+    createTime      datetime        default CURRENT_TIMESTAMP NOT NULL comment '创建时间',
+    updateTie       datetime        default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL comment '更新时间',
+    -- 索引设计
+    unique key  uk_spaceId_userId (spaceId,userId), -- 唯一索引，用户在一个空间中只能有一个角色
+    index idx_spaceId (spaceId),
+    index idx_userId  (userId)
+)comment '团队用户关联' collate =utf8mb4_unicode_ci;
+
