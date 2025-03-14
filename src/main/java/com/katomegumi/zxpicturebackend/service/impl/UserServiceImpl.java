@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.katomegumi.zxpicturebackend.exception.BusinessException;
 import com.katomegumi.zxpicturebackend.exception.ErrorCode;
+import com.katomegumi.zxpicturebackend.manager.auth.StpKit.StpKit;
 import com.katomegumi.zxpicturebackend.model.dto.user.UserQueryRequest;
 import com.katomegumi.zxpicturebackend.model.entity.User;
 import com.katomegumi.zxpicturebackend.model.enums.UserRoleEnum;
@@ -118,6 +119,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        //采用sa-TOKEN 这里是便于空间用户权限使用
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
 

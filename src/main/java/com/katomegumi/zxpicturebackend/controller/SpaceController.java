@@ -12,6 +12,7 @@ import com.katomegumi.zxpicturebackend.constant.UserConstant;
 import com.katomegumi.zxpicturebackend.exception.BusinessException;
 import com.katomegumi.zxpicturebackend.exception.ErrorCode;
 import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
+import com.katomegumi.zxpicturebackend.manager.auth.SpaceUserAuthManager;
 import com.katomegumi.zxpicturebackend.model.dto.space.*;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
 import com.katomegumi.zxpicturebackend.model.entity.User;
@@ -42,6 +43,9 @@ public class SpaceController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private SpaceUserAuthManager   spaceUserAuthManager;
 
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
@@ -121,10 +125,14 @@ public class SpaceController {
     public BaseResponse<SpaceVO> getSpaceVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
-        Space Space = spaceService.getById(id);
-        ThrowUtils.throwIf(Space == null, ErrorCode.NOT_FOUND_ERROR);
+        Space space = spaceService.getById(id);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
+        SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
+        User loginUser = userService.getLoginUser(request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        spaceVO.setPermissionList(permissionList);
         // 获取封装类
-        return ResultUtils.success(spaceService.getSpaceVO(Space, request));
+        return ResultUtils.success(spaceVO);
     }
 
     /**
