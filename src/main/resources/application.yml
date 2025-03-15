@@ -22,6 +22,35 @@ spring:
       database: 1
       timeout: 5000 #设置连接时间 5秒后失败
       password: 123456
+  # 空间图片分表
+  shardingsphere:
+    datasource: #链接数据库
+      names: zx_picture
+      zx_picture:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/yu_picture
+        username: root
+        password: 123456
+    rules:
+      sharding:
+        tables:
+          picture:
+            actual-data-nodes: zx_picture.tb_picture
+            #动态分表 actual-data-nodes 一般情况下是指定一段分表的范围，zx_picture.tb_picture${}
+            #但是由于 spaceId 是长整型，范围太大，无法通过指定范围将所有分表名称包含 这里我们需要自行设置分表名称
+            table-strategy:
+              standard:
+                sharding-column: spaceId #根据什么进行分表 分表字段
+                sharding-algorithm-name: picture_sharding_algorithm  # 使用自定义分片算法
+        sharding-algorithms:
+          picture_sharding_algorithm:
+            type: CLASS_BASED #自行实现分表class类
+            props:
+              strategy: standard
+              algorithmClassName: com.katomegumi.zxpicturebackend.manager.sharding.PictureShardingAlgorithm
+    props:
+      sql-show: true #日志打印
 
 mybatis-plus:
   configuration:
@@ -31,6 +60,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
    #逻辑删除
   global-config:
+    enable-sql-runner: true #需要开启
     db-config:
       logic-delete-field: delete
       logic-delete-value: 1 # 默认 1  代表删除

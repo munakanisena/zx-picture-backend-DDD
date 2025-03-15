@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 空间成员管理权限
+ */
 @Component
 public class SpaceUserAuthManager {
     public static final SpaceUserAuthConfig SPACE_USER_AUTH_CONFIG;
@@ -31,8 +34,8 @@ public class SpaceUserAuthManager {
     @Resource
     private SpaceUserService spaceUserService;
     static {
-        String spaceUserAuthConfig = ResourceUtil.readUtf8Str("/biz/spaceUserAuthConfig.json");
-        SPACE_USER_AUTH_CONFIG=JSONUtil.toBean(spaceUserAuthConfig, SpaceUserAuthConfig.class);
+        String json = ResourceUtil.readUtf8Str("biz/spaceUserAuthConfig.json");
+        SPACE_USER_AUTH_CONFIG=JSONUtil.toBean(json, SpaceUserAuthConfig.class);
     }
 
     /**

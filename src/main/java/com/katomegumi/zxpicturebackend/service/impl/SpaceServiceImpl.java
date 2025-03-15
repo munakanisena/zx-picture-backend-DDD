@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.katomegumi.zxpicturebackend.exception.BusinessException;
 import com.katomegumi.zxpicturebackend.exception.ErrorCode;
 import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
+import com.katomegumi.zxpicturebackend.manager.sharding.DynamicShardingManager;
 import com.katomegumi.zxpicturebackend.model.dto.space.SpaceAddRequest;
 import com.katomegumi.zxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
@@ -25,6 +26,8 @@ import com.katomegumi.zxpicturebackend.model.vo.UserVO;
 import com.katomegumi.zxpicturebackend.service.SpaceService;
 import com.katomegumi.zxpicturebackend.service.SpaceUserService;
 import com.katomegumi.zxpicturebackend.service.UserService;
+import org.checkerframework.checker.formatter.qual.ReturnsFormat;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -53,6 +56,10 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
     @Resource
     private SpaceUserService spaceUserService;
+
+    @Resource
+    @Lazy
+    private DynamicShardingManager dynamicShardingManager;
 
     /**
      * 添加 用户添加空间
@@ -110,6 +117,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     boolean save = spaceUserService.save(spaceUser);
                     ThrowUtils.throwIf(!save,ErrorCode.OPERATION_ERROR,"创建团队成员记录失败");
                 }
+                //添加分表
+                dynamicShardingManager.createTable(space);
                 //4.添加数据库
                 return space.getId();
             });
