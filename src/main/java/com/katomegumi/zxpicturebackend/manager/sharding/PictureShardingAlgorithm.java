@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * 自定义 算法类
+ */
 public class PictureShardingAlgorithm implements StandardShardingAlgorithm<Long> {
 
     /**
