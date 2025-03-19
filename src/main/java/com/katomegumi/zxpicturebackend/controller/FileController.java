@@ -1,13 +1,13 @@
 package com.katomegumi.zxpicturebackend.controller;
 
-import com.katomegumi.zxpicturebackend.annotation.AuthCheck;
-import com.katomegumi.zxpicturebackend.common.BaseResponse;
-import com.katomegumi.zxpicturebackend.common.ResultUtils;
-import com.katomegumi.zxpicturebackend.constant.UserConstant;
+import com.katomegumi.zxpicture.infrastructure.annotation.AuthCheck;
+import com.katomegumi.zxpicture.infrastructure.common.BaseResponse;
+import com.katomegumi.zxpicture.infrastructure.common.ResultUtils;
+import com.katomegumi.zxpicture.domain.user.constant.UserConstant;
 
-import com.katomegumi.zxpicturebackend.exception.BusinessException;
-import com.katomegumi.zxpicturebackend.exception.ErrorCode;
-import com.katomegumi.zxpicturebackend.manager.CosManager;
+import com.katomegumi.zxpicture.infrastructure.exception.BusinessException;
+import com.katomegumi.zxpicture.infrastructure.exception.ErrorCode;
+import com.katomegumi.zxpicture.infrastructure.api.CosManager;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.COSObjectInputStream;
 import com.qcloud.cos.utils.IOUtils;

@@ -4,22 +4,22 @@ package com.katomegumi.zxpicturebackend.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 
-import com.katomegumi.zxpicturebackend.annotation.AuthCheck;
-import com.katomegumi.zxpicturebackend.common.BaseResponse;
-import com.katomegumi.zxpicturebackend.common.DeleteRequest;
-import com.katomegumi.zxpicturebackend.common.ResultUtils;
-import com.katomegumi.zxpicturebackend.constant.UserConstant;
-import com.katomegumi.zxpicturebackend.exception.BusinessException;
-import com.katomegumi.zxpicturebackend.exception.ErrorCode;
-import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
+import com.katomegumi.zxpicture.infrastructure.annotation.AuthCheck;
+import com.katomegumi.zxpicture.infrastructure.common.BaseResponse;
+import com.katomegumi.zxpicture.infrastructure.common.DeleteRequest;
+import com.katomegumi.zxpicture.infrastructure.common.ResultUtils;
+import com.katomegumi.zxpicture.domain.user.constant.UserConstant;
+import com.katomegumi.zxpicture.infrastructure.exception.BusinessException;
+import com.katomegumi.zxpicture.infrastructure.exception.ErrorCode;
+import com.katomegumi.zxpicture.infrastructure.exception.ThrowUtils;
 import com.katomegumi.zxpicturebackend.manager.auth.SpaceUserAuthManager;
 import com.katomegumi.zxpicturebackend.model.dto.space.*;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
-import com.katomegumi.zxpicturebackend.model.entity.User;
+import com.katomegumi.zxpicture.domain.user.entily.User;
 import com.katomegumi.zxpicturebackend.model.enums.SpaceLevelEnum;
 import com.katomegumi.zxpicturebackend.model.vo.SpaceVO;
 import com.katomegumi.zxpicturebackend.service.SpaceService;
-import com.katomegumi.zxpicturebackend.service.UserService;
+import com.katomegumi.zxpicture.application.service.UserApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
@@ -42,7 +42,7 @@ public class SpaceController {
     private SpaceService spaceService;
 
     @Resource
-    private UserService userService;
+    private UserApplicationService userApplicationService;
 
     @Resource
     private SpaceUserAuthManager   spaceUserAuthManager;
@@ -50,7 +50,7 @@ public class SpaceController {
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(spaceAddRequest==null, ErrorCode.PARAMS_ERROR);
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userApplicationService.getLoginUser(request);
         long userId = spaceService.addSpace(spaceAddRequest, loginUser);
         return ResultUtils.success(userId);
     }
@@ -90,7 +90,7 @@ public class SpaceController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userApplicationService.getLoginUser(request);
         long id = deleteRequest.getId();
         // 判断是否存在
         Space oldSpace = spaceService.getById(id);
@@ -128,7 +128,7 @@ public class SpaceController {
         Space space = spaceService.getById(id);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
         SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userApplicationService.getLoginUser(request);
         List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
         spaceVO.setPermissionList(permissionList);
         // 获取封装类
@@ -182,7 +182,7 @@ public class SpaceController {
         space.setEditTime(new Date());
         // 数据校验
         spaceService.validSpace(space,false);
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userApplicationService.getLoginUser(request);
         // 判断是否存在
         long id = SpaceEditRequest.getId();
         Space oldSpace = spaceService.getById(id);

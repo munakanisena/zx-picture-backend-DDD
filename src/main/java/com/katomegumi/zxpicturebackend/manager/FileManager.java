@@ -13,10 +13,11 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 
-import com.katomegumi.zxpicturebackend.config.CosClientConfig;
-import com.katomegumi.zxpicturebackend.exception.BusinessException;
-import com.katomegumi.zxpicturebackend.exception.ErrorCode;
-import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
+import com.katomegumi.zxpicture.infrastructure.api.CosManager;
+import com.katomegumi.zxpicture.infrastructure.config.CosClientConfig;
+import com.katomegumi.zxpicture.infrastructure.exception.BusinessException;
+import com.katomegumi.zxpicture.infrastructure.exception.ErrorCode;
+import com.katomegumi.zxpicture.infrastructure.exception.ThrowUtils;
 import com.katomegumi.zxpicturebackend.model.dto.file.UploadPictureResult;
 
 import com.qcloud.cos.model.PutObjectResult;

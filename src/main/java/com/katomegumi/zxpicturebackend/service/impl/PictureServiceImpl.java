@@ -8,13 +8,13 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.katomegumi.zxpicturebackend.api.aliyunai.AliYunAiApi;
-import com.katomegumi.zxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.katomegumi.zxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.katomegumi.zxpicturebackend.exception.BusinessException;
-import com.katomegumi.zxpicturebackend.exception.ErrorCode;
-import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
-import com.katomegumi.zxpicturebackend.manager.CosManager;
+import com.katomegumi.zxpicture.infrastructure.api.aliyunai.AliYunAiApi;
+import com.katomegumi.zxpicture.infrastructure.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.katomegumi.zxpicture.infrastructure.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.katomegumi.zxpicture.infrastructure.exception.BusinessException;
+import com.katomegumi.zxpicture.infrastructure.exception.ErrorCode;
+import com.katomegumi.zxpicture.infrastructure.exception.ThrowUtils;
+import com.katomegumi.zxpicture.infrastructure.api.CosManager;
 import com.katomegumi.zxpicturebackend.manager.FileManager;
 import com.katomegumi.zxpicturebackend.manager.upload.FilePictureUpload;
 import com.katomegumi.zxpicturebackend.manager.upload.PictureUploadTemplate;
@@ -23,15 +23,15 @@ import com.katomegumi.zxpicturebackend.model.dto.file.UploadPictureResult;
 import com.katomegumi.zxpicturebackend.model.dto.picture.*;
 import com.katomegumi.zxpicturebackend.model.entity.Picture;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
-import com.katomegumi.zxpicturebackend.model.entity.User;
+import com.katomegumi.zxpicture.domain.user.entily.User;
 import com.katomegumi.zxpicturebackend.model.enums.PictureReviewStatusEnum;
 import com.katomegumi.zxpicturebackend.model.vo.PictureVO;
-import com.katomegumi.zxpicturebackend.model.vo.UserVO;
+import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import com.katomegumi.zxpicturebackend.service.PictureService;
-import com.katomegumi.zxpicturebackend.mapper.PictureMapper;
+import com.katomegumi.zxpicture.infrastructure.mapper.PictureMapper;
 import com.katomegumi.zxpicturebackend.service.SpaceService;
-import com.katomegumi.zxpicturebackend.service.UserService;
-import com.katomegumi.zxpicturebackend.utils.ColorSimilarUtils;
+import com.katomegumi.zxpicture.application.service.UserApplicationService;
+import com.katomegumi.zxpicture.infrastructure.utils.ColorSimilarUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -69,7 +69,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private SpaceService spaceService;
 
     @Resource
-    private UserService userService;
+    private UserApplicationService userApplicationService;
 
     @Resource
     private FilePictureUpload filePictureUpload;
@@ -123,7 +123,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             Picture oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
             //是本人还是 管理员操作
-            if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            if (!oldPicture.getUserId().equals(loginUser.getId()) && !loginUser.isAdmin()) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
           /*  boolean result = lambdaQuery().eq(Picture::getId, pictureId)
@@ -278,8 +278,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 关联查询用户信息
         Long userId = picture.getUserId();
         if (userId != null && userId > 0) {
-            User user = userService.getById(userId);
-            UserVO userVO = userService.getUserVO(user);
+            User user = userApplicationService.getUserById(userId);
+            UserVO userVO = userApplicationService.getUserVO(user);
             pictureVO.setUser(userVO);
         }
         return pictureVO;
@@ -297,7 +297,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         List<PictureVO> pictureVOList = records.stream().map(PictureVO::objToVo).collect(Collectors.toList());
         //为了获得用户的详细信息
         Set<Long> userIds = records.stream().map(Picture::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIds).stream().collect(Collectors.groupingBy(User::getId));
+        Map<Long, List<User>> userIdUserListMap = userApplicationService.listByIds(userIds).stream().collect(Collectors.groupingBy(User::getId));
 
         for (PictureVO pictureVO : pictureVOList) {
             Long userId = pictureVO.getUserId();
@@ -305,7 +305,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             if (userIdUserListMap.containsKey(userId)) {
                 user = userIdUserListMap.get(userId).get(0);
             }
-            pictureVO.setUser(userService.getUserVO(user));
+            pictureVO.setUser(userApplicationService.getUserVO(user));
         }
         return pictureVOPage.setRecords(pictureVOList);
     }
@@ -407,7 +407,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Override
     public void fillReviewParams(Picture picture, User loginUser) {
-        if (userService.isAdmin(loginUser)) {
+        if (loginUser.isAdmin()) {
             //管理直接放行
             picture.setReviewTime(new Date());
             picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
@@ -508,7 +508,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Long spaceId = picture.getSpaceId();
         if (spaceId == null) {
             // 公共图库，仅本人或管理员可操作
-            if (!picture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            if (!picture.getUserId().equals(loginUser.getId()) && !loginUser.isAdmin()) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
         } else {

@@ -1,5 +1,6 @@
 package com.katomegumi.zxpicturebackend.model.vo;
 
+import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import com.katomegumi.zxpicturebackend.model.entity.SpaceUser;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

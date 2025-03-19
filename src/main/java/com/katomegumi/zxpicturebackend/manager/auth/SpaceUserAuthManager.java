@@ -7,16 +7,14 @@ import com.katomegumi.zxpicturebackend.manager.auth.model.SpaceUserAuthConfig;
 import com.katomegumi.zxpicturebackend.manager.auth.model.SpaceUserRole;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
 import com.katomegumi.zxpicturebackend.model.entity.SpaceUser;
-import com.katomegumi.zxpicturebackend.model.entity.User;
+import com.katomegumi.zxpicture.domain.user.entily.User;
 import com.katomegumi.zxpicturebackend.model.enums.SpaceRoleEnum;
 import com.katomegumi.zxpicturebackend.model.enums.SpaceTypeEnum;
-import com.katomegumi.zxpicturebackend.service.SpaceService;
 import com.katomegumi.zxpicturebackend.service.SpaceUserService;
-import com.katomegumi.zxpicturebackend.service.UserService;
+import com.katomegumi.zxpicture.application.service.UserApplicationService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +27,7 @@ public class SpaceUserAuthManager {
     public static final SpaceUserAuthConfig SPACE_USER_AUTH_CONFIG;
 
     @Resource
-    private UserService userService;
+    private UserApplicationService userApplicationService;
 
     @Resource
     private SpaceUserService spaceUserService;
@@ -65,7 +63,7 @@ public class SpaceUserAuthManager {
         List<String> ADMIN_PERMISSIONS = getSpaceUserPermissionsByRole(SpaceRoleEnum.ADMIN.getValue());
         // 公共图库
         if (space == null) {
-            if (userService.isAdmin(loginUser)) {
+            if (loginUser.isAdmin()) {
                 return ADMIN_PERMISSIONS;
             }
             return new ArrayList<>();
@@ -78,7 +76,7 @@ public class SpaceUserAuthManager {
         switch (spaceTypeEnum) {
             case PRIVATE:
                 // 私有空间，仅本人或管理员有所有权限
-                if (space.getUserId().equals(loginUser.getId()) || userService.isAdmin(loginUser)) {
+                if (space.getUserId().equals(loginUser.getId()) || loginUser.isAdmin()) {
                     return ADMIN_PERMISSIONS;
                 } else {
                     return new ArrayList<>();

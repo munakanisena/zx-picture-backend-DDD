@@ -2,10 +2,7 @@ package com.katomegumi.zxpicturebackend.manager.websocket;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.ConcurrentHashSet;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -14,8 +11,8 @@ import com.katomegumi.zxpicturebackend.manager.websocket.model.PictureEditAction
 import com.katomegumi.zxpicturebackend.manager.websocket.model.PictureEditMessageTypeEnum;
 import com.katomegumi.zxpicturebackend.manager.websocket.model.PictureEditRequestMessage;
 import com.katomegumi.zxpicturebackend.manager.websocket.model.PictureEditResponseMessage;
-import com.katomegumi.zxpicturebackend.model.entity.User;
-import com.katomegumi.zxpicturebackend.model.vo.UserVO;
+import com.katomegumi.zxpicture.domain.user.entily.User;
+import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;

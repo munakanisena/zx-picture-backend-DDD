@@ -7,27 +7,24 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.katomegumi.zxpicturebackend.exception.BusinessException;
-import com.katomegumi.zxpicturebackend.exception.ErrorCode;
-import com.katomegumi.zxpicturebackend.exception.ThrowUtils;
-import com.katomegumi.zxpicturebackend.manager.sharding.DynamicShardingManager;
+import com.katomegumi.zxpicture.infrastructure.exception.BusinessException;
+import com.katomegumi.zxpicture.infrastructure.exception.ErrorCode;
+import com.katomegumi.zxpicture.infrastructure.exception.ThrowUtils;
 import com.katomegumi.zxpicturebackend.model.dto.space.SpaceAddRequest;
 import com.katomegumi.zxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
 import com.katomegumi.zxpicturebackend.model.entity.SpaceUser;
-import com.katomegumi.zxpicturebackend.model.entity.User;
+import com.katomegumi.zxpicture.domain.user.entily.User;
 import com.katomegumi.zxpicturebackend.model.enums.SpaceLevelEnum;
 
-import com.katomegumi.zxpicturebackend.mapper.SpaceMapper;
+import com.katomegumi.zxpicture.infrastructure.mapper.SpaceMapper;
 import com.katomegumi.zxpicturebackend.model.enums.SpaceRoleEnum;
 import com.katomegumi.zxpicturebackend.model.enums.SpaceTypeEnum;
 import com.katomegumi.zxpicturebackend.model.vo.SpaceVO;
-import com.katomegumi.zxpicturebackend.model.vo.UserVO;
+import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import com.katomegumi.zxpicturebackend.service.SpaceService;
 import com.katomegumi.zxpicturebackend.service.SpaceUserService;
-import com.katomegumi.zxpicturebackend.service.UserService;
-import org.checkerframework.checker.formatter.qual.ReturnsFormat;
-import org.springframework.context.annotation.Lazy;
+import com.katomegumi.zxpicture.application.service.UserApplicationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -49,7 +46,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     implements SpaceService {
 
     @Resource
-    private UserService userService;
+    private UserApplicationService userApplicationService;
 
     @Resource
     private TransactionTemplate transactionTemplate; //自定义事务
@@ -91,7 +88,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         //补充参数
         space.setUserId(userId);
         //3.检验权限 判断是否为管理员
-        if (SpaceLevelEnum.COMMON.getValue() != spaceAddRequest.getSpaceLevel() && !userService.isAdmin(loginUser)) {
+        if (SpaceLevelEnum.COMMON.getValue() != spaceAddRequest.getSpaceLevel() && !loginUser.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限创建指定级别的空间");
         }
         //针对用户加锁 避免多线程情况下 用户创建多个空间
@@ -194,8 +191,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         // 关联查询用户信息
         Long userId = space.getUserId();
         if (userId != null && userId > 0) {
-            User user = userService.getById(userId);
-            UserVO userVO = userService.getUserVO(user);
+            User user = userApplicationService.getUserById(userId);
+            UserVO userVO = userApplicationService.getUserVO(user);
             spaceVO.setUser(userVO);
         }
         return spaceVO;
@@ -213,7 +210,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         List<SpaceVO> spaceVOList = records.stream().map(SpaceVO::objToVo).collect(Collectors.toList());
         //为了获得用户的详细信息
         Set<Long> userIds = records.stream().map(Space::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIds).stream().collect(Collectors.groupingBy(User::getId));
+        Map<Long, List<User>> userIdUserListMap = userApplicationService.listByIds(userIds).stream().collect(Collectors.groupingBy(User::getId));
 
         for (SpaceVO spaceVO : spaceVOList) {
             Long userId = spaceVO.getUserId();
@@ -221,14 +218,14 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
             if (userIdUserListMap.containsKey(userId)) {
                 user = userIdUserListMap.get(userId).get(0);
             }
-            spaceVO.setUser(userService.getUserVO(user));
+            spaceVO.setUser(userApplicationService.getUserVO(user));
         }
         return spaceVOPage.setRecords(spaceVOList);
     }
 
     @Override
     public void checkSpaceAuth(Space space, User loginUser) {
-        if (!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+        if (!space.getUserId().equals(loginUser.getId()) && !loginUser.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
     }

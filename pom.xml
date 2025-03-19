@@ -170,7 +170,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.katomegumi.zxpicturebackend.ZxPictureBackendApplication</mainClass>
+                    <mainClass>com.katomegumi.zxpicture.ZxPictureBackendApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>

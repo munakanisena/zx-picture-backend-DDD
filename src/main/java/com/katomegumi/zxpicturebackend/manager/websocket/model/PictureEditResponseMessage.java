@@ -1,6 +1,6 @@
 package com.katomegumi.zxpicturebackend.manager.websocket.model;
 
-import com.katomegumi.zxpicturebackend.model.vo.UserVO;
+import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

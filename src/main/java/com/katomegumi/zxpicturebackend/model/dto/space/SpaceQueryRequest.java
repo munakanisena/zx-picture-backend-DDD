@@ -1,6 +1,6 @@
 package com.katomegumi.zxpicturebackend.model.dto.space;
 
-import com.katomegumi.zxpicturebackend.common.PageRequest;
+import com.katomegumi.zxpicture.infrastructure.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

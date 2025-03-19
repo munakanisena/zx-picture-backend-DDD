@@ -1,6 +1,7 @@
 package com.katomegumi.zxpicturebackend.model.vo;
 
 import cn.hutool.json.JSONUtil;
+import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import com.katomegumi.zxpicturebackend.model.entity.Picture;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

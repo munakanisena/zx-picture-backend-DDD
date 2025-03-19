@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.katomegumi.zxpicturebackend.model.dto.space.SpaceAddRequest;
 import com.katomegumi.zxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.katomegumi.zxpicturebackend.model.entity.Space;
-import com.katomegumi.zxpicturebackend.model.entity.User;
+import com.katomegumi.zxpicture.domain.user.entily.User;
 import com.katomegumi.zxpicturebackend.model.vo.SpaceVO;
 
 import javax.servlet.http.HttpServletRequest;
