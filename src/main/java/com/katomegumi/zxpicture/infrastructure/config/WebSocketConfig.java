@@ -1,7 +1,7 @@
 package com.katomegumi.zxpicture.infrastructure.config;
 
-import com.katomegumi.zxpicturebackend.manager.websocket.PictureEditHandler;
-import com.katomegumi.zxpicturebackend.manager.websocket.WsHandshakeInterceptor;
+import com.katomegumi.zxpicture.shared.websocket.PictureEditHandler;
+import com.katomegumi.zxpicture.shared.websocket.WsHandshakeInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;

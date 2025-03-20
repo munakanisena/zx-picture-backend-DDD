@@ -11,7 +11,6 @@ import com.katomegumi.zxpicture.interfaces.dto.user.UserLoginRequest;
 import com.katomegumi.zxpicture.interfaces.dto.user.UserRegisterRequest;
 import com.katomegumi.zxpicture.interfaces.dto.user.UserQueryRequest;
 import com.katomegumi.zxpicture.domain.user.entily.User;
-import com.katomegumi.zxpicture.domain.user.valueobject.UserRoleEnum;
 import com.katomegumi.zxpicture.interfaces.vo.user.LoginUserVO;
 import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
 import com.katomegumi.zxpicture.application.service.UserApplicationService;

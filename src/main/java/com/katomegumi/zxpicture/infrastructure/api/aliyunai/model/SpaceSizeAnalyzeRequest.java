@@ -1,6 +1,6 @@
 package com.katomegumi.zxpicture.infrastructure.api.aliyunai.model;
 
-import com.katomegumi.zxpicturebackend.model.dto.space.analyze.SpaceAnalyzeRequest;
+import com.katomegumi.zxpicture.interfaces.dto.space.analyze.SpaceAnalyzeRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

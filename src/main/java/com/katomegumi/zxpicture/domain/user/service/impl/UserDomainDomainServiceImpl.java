@@ -15,7 +15,7 @@ import com.katomegumi.zxpicture.infrastructure.exception.ThrowUtils;
 import com.katomegumi.zxpicture.interfaces.dto.user.UserQueryRequest;
 import com.katomegumi.zxpicture.interfaces.vo.user.LoginUserVO;
 import com.katomegumi.zxpicture.interfaces.vo.user.UserVO;
-import com.katomegumi.zxpicturebackend.manager.auth.StpKit.StpKit;
+import com.katomegumi.zxpicture.shared.auth.StpKit.StpKit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;

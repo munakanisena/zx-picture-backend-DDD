@@ -2,8 +2,8 @@ package com.katomegumi.zxpicture.infrastructure.config;
 
 
 import cn.hutool.core.thread.ThreadFactoryBuilder;
-import com.katomegumi.zxpicturebackend.manager.websocket.disruptor.PictureEditEvent;
-import com.katomegumi.zxpicturebackend.manager.websocket.disruptor.PictureEditEventWorkHandler;
+import com.katomegumi.zxpicture.shared.websocket.disruptor.PictureEditEvent;
+import com.katomegumi.zxpicture.shared.websocket.disruptor.PictureEditEventWorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

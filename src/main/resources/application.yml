@@ -4,7 +4,7 @@ server:
     context-path: /api  #指定上下文路径 也就是说 要输入localhost:8080/api 才能访问到
 spring:
   application:
-    name: zx-picture-backend
+    name: zx-picture-backend-DDD
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/zx_picture
@@ -48,7 +48,7 @@ spring:
             type: CLASS_BASED #自行实现分表class类
             props:
               strategy: standard
-              algorithmClassName: com.katomegumi.zxpicturebackend.manager.sharding.PictureShardingAlgorithm
+              algorithmClassName: com.katomegumi.zxpicture.shared.sharding.PictureShardingAlgorithm
     props:
       sql-show: true #日志打印
 
@@ -78,7 +78,7 @@ knife4j:
         group-name: 分组名称
         api-rule: package
         api-rule-resources:
-          - com.katomegumi.zxpicturebackend.controller #指定controller
+          - com.katomegumi.zxpicture.interfaces.controller #指定controller
 
 # 对象存储配置（需要从腾讯云获取）
 cos:
