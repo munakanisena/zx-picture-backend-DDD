@@ -51,11 +51,10 @@ public class UserDomainDomainServiceImpl implements UserDomainService {
         }
         String password = getEncryptPassword(userPassword);
 
-        User user = User.builder()
-                .userAccount(userAccount)
-                .userPassword(password)
-                .userName("无名")
-                .build();
+        User user= new User();
+        user.setUserAccount(userAccount);
+        user.setUserPassword(password);
+        user.setUserName("无名");
 
         boolean result = userRepository.save(user);
 

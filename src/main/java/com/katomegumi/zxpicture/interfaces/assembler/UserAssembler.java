@@ -11,13 +11,13 @@ import org.springframework.beans.BeanUtils;
 public class UserAssembler {
 
     public static User toUserEntity(UserAddRequest request) {
-        User user = User.builder().build();
+        User user = new User();
         BeanUtils.copyProperties(request, user);
         return user;
     }
 
     public static User toUserEntity(UserUpdateRequest request) {
-        User user = User.builder().build();
+        User user = new User();
         BeanUtils.copyProperties(request, user);
         return user;
     }
