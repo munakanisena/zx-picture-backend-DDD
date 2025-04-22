@@ -459,7 +459,7 @@ public class PictureDomainServiceImpl implements PictureDomainService {
         if (ObjUtil.isNull(space)) {
           throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        ThrowUtils.throwIf(space.getUserId().equals(loginUser.getId()),ErrorCode.NO_AUTH_ERROR);
+        ThrowUtils.throwIf(!space.getUserId().equals(loginUser.getId()),ErrorCode.NO_AUTH_ERROR);
         //查看空间全部图(要有主色调的图)
         List<Picture> pictureList = pictureRepository.lambdaQuery()
                 .eq(Picture::getSpaceId, spaceId)
