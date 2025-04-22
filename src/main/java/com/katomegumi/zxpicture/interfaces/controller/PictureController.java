@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.katomegumi.zxpicture.infrastructure.annotation.AuthCheck;
+import com.katomegumi.zxpicture.infrastructure.api.ImageSearchApiFacade;
 import com.katomegumi.zxpicture.infrastructure.api.aliyunai.AliYunAiApi;
 import com.katomegumi.zxpicture.infrastructure.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.katomegumi.zxpicture.infrastructure.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.katomegumi.zxpicture.infrastructure.api.imagesearch.model.ImageSearchResult;
 import com.katomegumi.zxpicture.infrastructure.common.BaseResponse;
 import com.katomegumi.zxpicture.infrastructure.common.DeleteRequest;
 import com.katomegumi.zxpicture.infrastructure.common.ResultUtils;
@@ -396,5 +398,19 @@ public class PictureController {
         GetOutPaintingTaskResponse task = aliYunAiApi.getOutPaintingTask(taskId);
         return ResultUtils.success(task);
     }
+    /**
+     * 以图搜图
+     */
+    @PostMapping("/search/picture")
+    public BaseResponse<List<ImageSearchResult>> searchPictureByPicture(@RequestBody SearchPictureByPictureRequest searchPictureByPictureRequest) {
+        ThrowUtils.throwIf(searchPictureByPictureRequest == null, ErrorCode.PARAMS_ERROR);
+        Long pictureId = searchPictureByPictureRequest.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR);
+        Picture oldPicture = pictureApplicationService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        List<ImageSearchResult> resultList = ImageSearchApiFacade.searchImage(oldPicture.getUrl());
+        return ResultUtils.success(resultList);
+    }
+
 //
 }
